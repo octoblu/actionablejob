@@ -12,7 +12,7 @@ var _ = Describe("Redisjob", func() {
 		var sut redisjob.Job
 
 		BeforeEach(func(){
-			sut = redisjob.NewJob("old-map")
+			sut = redisjob.New("old-map")
 		})
 
 		It("should set the key", func(){

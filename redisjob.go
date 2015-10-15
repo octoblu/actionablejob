@@ -10,8 +10,8 @@ type RedisJob struct {
   key string
 }
 
-// NewJob returns a new job
-func NewJob(key string) *RedisJob {
+// New returns a new job
+func New(key string) *RedisJob {
   return &RedisJob{key: key}
 }
 
