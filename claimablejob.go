@@ -1,4 +1,4 @@
-package actionablejob
+package claimablejob
 
 import (
   "strconv"
@@ -11,34 +11,34 @@ type Job interface {
   GetKey() string
 }
 
-// ActionableJob represents a job in the queue that can know if it should have action taken upon it
-type ActionableJob interface {
+// ClaimableJob represents a job in the queue that can know if it should have action taken upon it
+type ClaimableJob interface {
   GetKey() string
   Claim() (bool,error)
 }
 
-// ActionableRedisJob implements ActionableJob and stores/retrieves jobs from Redis
-type ActionableRedisJob struct {
+// ClaimableRedisJob implements ClaimableJob and stores/retrieves jobs from Redis
+type ClaimableRedisJob struct {
   key string
 }
 
 // New returns a new job
-func New(key string) *ActionableRedisJob {
-  return &ActionableRedisJob{key: key}
+func New(key string) *ClaimableRedisJob {
+  return &ClaimableRedisJob{key: key}
 }
 
 // NewFromJob returns a new job based on a Job
-func NewFromJob(job Job) *ActionableRedisJob {
-  return &ActionableRedisJob{key: job.GetKey()}
+func NewFromJob(job Job) *ClaimableRedisJob {
+  return &ClaimableRedisJob{key: job.GetKey()}
 }
 
 // GetKey returns the key to store the information about the job
-func (job *ActionableRedisJob) GetKey() string {
+func (job *ClaimableRedisJob) GetKey() string {
   return job.key
 }
 
 // Claim returns true when the caller succesfully claims the job
-func (job *ActionableRedisJob) Claim() (bool,error) {
+func (job *ClaimableRedisJob) Claim() (bool,error) {
   var err error
   var redisConn redis.Conn
   var result interface{}

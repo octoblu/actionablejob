@@ -1,11 +1,11 @@
-package actionablejob_test
+package claimablejob_test
 
 import (
 	"strconv"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/octoblu/actionablejob"
+	"github.com/octoblu/claimablejob"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -16,9 +16,9 @@ func (dumbJob *DumbJob) GetKey() string {
 	return "I am dumb"
 }
 
-var _ = Describe("ActionableRedisJob", func() {
+var _ = Describe("ClaimableRedisJob", func() {
 	var redisConn redis.Conn
-	var sut actionablejob.ActionableJob
+	var sut claimablejob.ClaimableJob
 
 	BeforeEach(func() {
 		var err error
@@ -34,7 +34,7 @@ var _ = Describe("ActionableRedisJob", func() {
 	Describe("New", func() {
 		Context("called with a key", func(){
 			BeforeEach(func(){
-				sut = actionablejob.New("old-map")
+				sut = claimablejob.New("old-map")
 			})
 
 			It("should set the key", func(){
@@ -47,7 +47,7 @@ var _ = Describe("ActionableRedisJob", func() {
 		Context("called with a job", func(){
 			BeforeEach(func(){
 				job := new(DumbJob)
-				sut = actionablejob.NewFromJob(job)
+				sut = claimablejob.NewFromJob(job)
 			})
 
 			It("should set the key", func(){
@@ -58,7 +58,7 @@ var _ = Describe("ActionableRedisJob", func() {
 
 	Describe("Claim", func(){
 		BeforeEach(func(){
-			sut = actionablejob.New("faulty")
+			sut = claimablejob.New("faulty")
 		})
 
 		Context("When the job has already run this second", func(){

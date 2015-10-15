@@ -1,4 +1,4 @@
-package actionablejob_test
+package claimablejob_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -9,5 +9,5 @@ import (
 
 func TestRedisjob(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Actionablejob Suite")
+	RunSpecs(t, "ClaimableJob Suite")
 }
