@@ -1,7 +1,7 @@
-package redisjob_test
+package actionablejob_test
 
 import (
-	"github.com/octoblu/redisjob"
+	"github.com/octoblu/actionablejob"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -12,13 +12,13 @@ func (dumbJob *DumbJob) GetKey() string {
 	return "I am dumb"
 }
 
-var _ = Describe("Redisjob", func() {
+var _ = Describe("ActionableRedisJob", func() {
 	Describe("New", func() {
 		Context("called with a key", func(){
-			var sut redisjob.Job
+			var sut actionablejob.ActionableJob
 
 			BeforeEach(func(){
-				sut = redisjob.New("old-map")
+				sut = actionablejob.New("old-map")
 			})
 
 			It("should set the key", func(){
@@ -29,11 +29,11 @@ var _ = Describe("Redisjob", func() {
 
 	Describe("NewFromJob", func() {
 		Context("called with a job", func(){
-			var sut redisjob.Job
+			var sut actionablejob.ActionableJob
 
 			BeforeEach(func(){
 				job := new(DumbJob)
-				sut = redisjob.NewFromJob(job)
+				sut = actionablejob.NewFromJob(job)
 			})
 
 			It("should set the key", func(){

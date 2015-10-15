@@ -1,4 +1,4 @@
-package redisjob_test
+package actionablejob_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -9,5 +9,5 @@ import (
 
 func TestRedisjob(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Redisjob Suite")
+	RunSpecs(t, "Actionablejob Suite")
 }
