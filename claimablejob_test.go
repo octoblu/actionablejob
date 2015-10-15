@@ -57,12 +57,21 @@ var _ = Describe("ClaimableRedisJob", func() {
 	})
 
 	Describe("Claim", func(){
-		BeforeEach(func(){
-			sut = claimablejob.New("faulty")
+		Context("When the job is unset", func(){
+			BeforeEach(func(){
+				sut = claimablejob.New("faulty")
+				_,err := redisConn.Do("DEL", "[namespace]-faulty")
+				Expect(err).To(BeNil())
+			})
+
+			It("should return true", func(){
+				Expect(sut.Claim()).To(BeTrue())
+			})
 		})
 
 		Context("When the job has already run this second", func(){
 			BeforeEach(func(){
+				sut = claimablejob.New("faulty")
 				then := int64(time.Now().Unix() + 1)
 				_,err := redisConn.Do("SET", "[namespace]-faulty", then)
 				Expect(err).To(BeNil())
@@ -73,10 +82,23 @@ var _ = Describe("ClaimableRedisJob", func() {
 			})
 		})
 
+		Context("When the job with a different name ran this second", func(){
+			BeforeEach(func(){
+				sut = claimablejob.New("smokey")
+				_,err := redisConn.Do("DEL", "[namespace]-smokey")
+				Expect(err).To(BeNil())
+			})
+
+			It("should return true", func(){
+				Expect(sut.Claim()).To(BeTrue())
+			})
+		})
+
 		Context("When the job ran in the previous second", func(){
 			var gotClaim bool
 
 			BeforeEach(func(){
+				sut = claimablejob.New("faulty")
 				now := int64(time.Now().Unix())
 				_,err := redisConn.Do("SET", "[namespace]-faulty", now)
 				Expect(err).To(BeNil())

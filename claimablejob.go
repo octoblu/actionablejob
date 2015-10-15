@@ -1,6 +1,7 @@
 package claimablejob
 
 import (
+  "fmt"
   "strconv"
   "time"
   "github.com/garyburd/redigo/redis"
@@ -51,7 +52,7 @@ func (job *ClaimableRedisJob) Claim() (bool,error) {
 
   now  := time.Now().Unix()
   then := now + 1
-  result,err = redisConn.Do("GETSET", "[namespace]-faulty", then)
+  result,err = redisConn.Do("GETSET", job.tickKey(), then)
 
   nextTick := parseNextTick(result)
 
@@ -62,8 +63,12 @@ func (job *ClaimableRedisJob) Claim() (bool,error) {
   return true, nil
 }
 
+func (job *ClaimableRedisJob) tickKey() string {
+  return fmt.Sprintf("[namespace]-%s", job.GetKey())
+}
+
 func parseNextTick(redisResult interface{}) int64 {
-  strNextTick,ok := redisResult.([]uint8)
+  strNextTick, ok  := redisResult.([]uint8)
   if !ok {
     return 0
   }
