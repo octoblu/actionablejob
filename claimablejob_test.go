@@ -123,4 +123,45 @@ var _ = Describe("ClaimableRedisJob", func() {
 			})
 		})
 	})
+
+	Describe("PushKeyIntoQueue", func(){
+		Context("when execution is pushed into an empty some-random-queue", func(){
+			BeforeEach(func(){
+				_,err := redisConn.Do("DEL", "some-random-queue")
+				Expect(err).To(BeNil())
+
+				sut = claimablejob.New("execution")
+				err = sut.PushKeyIntoQueue("some-random-queue")
+				Expect(err).To(BeNil())
+			})
+
+			It("should push the key into the queue", func(){
+				length,err := redisConn.Do("LLEN", "some-random-queue")
+				Expect(err).To(BeNil())
+				Expect(length).To(Equal(int64(1)))
+			})
+		})
+
+		Context("when falling-tree-branch is pushed into an empty stick-the-landing", func(){
+			BeforeEach(func(){
+				_,err := redisConn.Do("DEL", "stick-the-landing")
+				Expect(err).To(BeNil())
+
+				sut = claimablejob.New("falling-tree-branch")
+				err = sut.PushKeyIntoQueue("stick-the-landing")
+				Expect(err).To(BeNil())
+			})
+
+			It("should push the key into the queue", func(){
+				length,err := redisConn.Do("LLEN", "stick-the-landing")
+				Expect(err).To(BeNil())
+				Expect(length).To(Equal(int64(1)))
+
+				key,err := redisConn.Do("LINDEX", "stick-the-landing", 0)
+				Expect(err).To(BeNil())
+				keyStr := string(key.([]uint8))
+				Expect(keyStr).To(Equal("falling-tree-branch"))
+			})
+		})
+	})
 })
