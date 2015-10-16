@@ -12,6 +12,11 @@ type Job interface {
   GetKey() string
 }
 
+// Conn is what all claimable jobs require
+type Conn interface {
+	Do(commandName string, args... interface{}) (interface{}, error)
+}
+
 // ClaimableJob represents a job in the queue that can know if it should have action taken upon it
 type ClaimableJob interface {
   Claim() (bool,error)
@@ -22,33 +27,28 @@ type ClaimableJob interface {
 // ClaimableRedisJob implements ClaimableJob and stores/retrieves jobs from Redis
 type ClaimableRedisJob struct {
   key string
+  conn Conn
 }
 
 // New returns a new job
-func New(key string) *ClaimableRedisJob {
-  return &ClaimableRedisJob{key: key}
+func New(key string, conn Conn) *ClaimableRedisJob {
+  return &ClaimableRedisJob{key: key, conn: conn}
 }
 
 // NewFromJob returns a new job based on a Job
-func NewFromJob(job Job) *ClaimableRedisJob {
-  return &ClaimableRedisJob{key: job.GetKey()}
+func NewFromJob(job Job, conn Conn) *ClaimableRedisJob {
+  return &ClaimableRedisJob{key: job.GetKey(), conn: conn}
 }
 
 // Claim returns true when the caller succesfully claims the job
 func (job *ClaimableRedisJob) Claim() (bool,error) {
-  var err error
-  var redisConn redis.Conn
-  var result interface{}
+  now  := time.Now().Unix()
+  then := now + 1
 
-	redisConn, err = redis.Dial("tcp", ":6379")
-
+  result,err := job.conn.Do("GETSET", job.tickKey(), then)
   if err != nil {
     return false, err
   }
-
-  now  := time.Now().Unix()
-  then := now + 1
-  result,err = redisConn.Do("GETSET", job.tickKey(), then)
 
   nextTick := parseNextTick(result)
 

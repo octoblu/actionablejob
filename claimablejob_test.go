@@ -32,9 +32,9 @@ var _ = Describe("ClaimableRedisJob", func() {
 	})
 
 	Describe("New", func() {
-		Context("called with a key", func(){
+		Context("called with a key and a conn", func(){
 			BeforeEach(func(){
-				sut = claimablejob.New("old-map")
+				sut = claimablejob.New("old-map", redisConn)
 			})
 
 			It("should set the key", func(){
@@ -47,7 +47,7 @@ var _ = Describe("ClaimableRedisJob", func() {
 		Context("called with a job", func(){
 			BeforeEach(func(){
 				job := new(DumbJob)
-				sut = claimablejob.NewFromJob(job)
+				sut = claimablejob.NewFromJob(job, redisConn)
 			})
 
 			It("should set the key", func(){
@@ -59,7 +59,7 @@ var _ = Describe("ClaimableRedisJob", func() {
 	Describe("Claim", func(){
 		Context("When the job is unset", func(){
 			BeforeEach(func(){
-				sut = claimablejob.New("faulty")
+				sut = claimablejob.New("faulty", redisConn)
 				_,err := redisConn.Do("DEL", "[namespace]-faulty")
 				Expect(err).To(BeNil())
 			})
@@ -71,7 +71,7 @@ var _ = Describe("ClaimableRedisJob", func() {
 
 		Context("When the job has already run this second", func(){
 			BeforeEach(func(){
-				sut = claimablejob.New("faulty")
+				sut = claimablejob.New("faulty", redisConn)
 				then := int64(time.Now().Unix() + 1)
 				_,err := redisConn.Do("SET", "[namespace]-faulty", then)
 				Expect(err).To(BeNil())
@@ -84,7 +84,7 @@ var _ = Describe("ClaimableRedisJob", func() {
 
 		Context("When the job with a different name ran this second", func(){
 			BeforeEach(func(){
-				sut = claimablejob.New("smokey")
+				sut = claimablejob.New("smokey", redisConn)
 				_,err := redisConn.Do("DEL", "[namespace]-smokey")
 				Expect(err).To(BeNil())
 			})
@@ -98,7 +98,7 @@ var _ = Describe("ClaimableRedisJob", func() {
 			var gotClaim bool
 
 			BeforeEach(func(){
-				sut = claimablejob.New("faulty")
+				sut = claimablejob.New("faulty", redisConn)
 				now := int64(time.Now().Unix())
 				_,err := redisConn.Do("SET", "[namespace]-faulty", now)
 				Expect(err).To(BeNil())
@@ -130,7 +130,7 @@ var _ = Describe("ClaimableRedisJob", func() {
 				_,err := redisConn.Do("DEL", "some-random-queue")
 				Expect(err).To(BeNil())
 
-				sut = claimablejob.New("execution")
+				sut = claimablejob.New("execution", redisConn)
 				err = sut.PushKeyIntoQueue("some-random-queue")
 				Expect(err).To(BeNil())
 			})
@@ -147,7 +147,7 @@ var _ = Describe("ClaimableRedisJob", func() {
 				_,err := redisConn.Do("DEL", "stick-the-landing")
 				Expect(err).To(BeNil())
 
-				sut = claimablejob.New("falling-tree-branch")
+				sut = claimablejob.New("falling-tree-branch", redisConn)
 				err = sut.PushKeyIntoQueue("stick-the-landing")
 				Expect(err).To(BeNil())
 			})
